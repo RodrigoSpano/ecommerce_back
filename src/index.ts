@@ -1,11 +1,11 @@
-import "dotenv/config";
-import express from "express";
-import morgan from "morgan";
+import 'dotenv/config'
+import express from 'express'
+import morgan from 'morgan'
 
-const app = express();
+const app = express()
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(morgan("dev"));
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(morgan('dev'))
 
-export default app;
+export default app
