@@ -1,4 +1,5 @@
-import mongoose from 'mongoose'
+import { Request, Response } from 'express'
+import mongoose, { ObjectId } from 'mongoose'
 
 export interface IUser {
   _id?: mongoose.Schema.Types.ObjectId
@@ -11,17 +12,29 @@ export interface IUserSchema extends IUser {
   comparePassword?(password: string): boolean
 }
 
+export type TDeleteResponse = { acknowledged: boolean; deletedCount: number }
+
 export interface IUserModel {
-  getUser(id: mongoose.Schema.Types.ObjectId): Promise<IUser>
+  getUser(id: ObjectId): Promise<IUser>
   createUser(data: Omit<IUser, 'id'>): Promise<IUser>
-  deleteUser(id: mongoose.Schema.Types.ObjectId): Promise<{ success: boolean }>
+  deleteUser(id: ObjectId): Promise<TDeleteResponse>
   changePassword(
-    id: mongoose.Schema.Types.ObjectId,
+    id: ObjectId,
     actualPassword: string,
     newPassword: string
   ): Promise<IUser>
-  recoveryPassword(
-    id: mongoose.Schema.Types.ObjectId,
-    newPassword: string
-  ): Promise<void>
+  recoveryPassword(id: ObjectId, newPassword: string): Promise<void>
+}
+
+export interface IUserRequests {
+  query: {}
+  params: { id: ObjectId }
+  body: { actualPassword: string; newPassword: string }
+}
+
+export interface IUserController {
+  getUser(req: IUserRequests, res: Response): void
+  deleteUser(req: IUserRequests, res: Response): void
+  changePassword(req: IUserRequests, res: Response): void
+  recoveryPassword(req: IUserRequests, res: Response): void
 }
