@@ -4,7 +4,8 @@ import {
   IUser,
   IUserController,
   IUserModel,
-  IUserRequests
+  IUserRequests,
+  TDeleteResponse
 } from '../utils/types/user/user.types'
 
 export default class UserController implements IUserController {
@@ -14,21 +15,21 @@ export default class UserController implements IUserController {
     try {
       const user: IUser = await this.UserModel.getUser(req.params.id)
       return res.status(200).json({ user })
-    } catch (error) {
-      return res.status(500).json(error)
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message })
     }
   }
 
   async deleteUser(req: IUserRequests, res: Response) {
     try {
-      const data = await this.UserModel.deleteUser(req.params.id)
-      if (!data.success)
+      const { deletedCount }: TDeleteResponse = await this.UserModel.deleteUser(
+        req.params.id
+      )
+      if (deletedCount > 0)
         return res.status(400).json({ message: 'error deleting user' })
-      return res
-        .status(200)
-        .json({ message: 'user deleted successfully!', sucess: true })
-    } catch (error) {
-      return res.status(500).json(error)
+      return res.status(200).json({ success: true, id: req.params.id })
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message })
     }
   }
 
@@ -47,8 +48,8 @@ export default class UserController implements IUserController {
         success: true,
         user: updatedUser
       })
-    } catch (error) {
-      return res.status(500).json(error)
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message })
     }
   }
 
@@ -58,8 +59,8 @@ export default class UserController implements IUserController {
       return res
         .status(200)
         .json({ message: 'password updated successfully!', success: true })
-    } catch (error) {
-      return res.status(500).json(error)
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message })
     }
   }
 }

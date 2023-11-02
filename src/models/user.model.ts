@@ -1,6 +1,11 @@
 import { Error, HydratedDocument, Schema } from 'mongoose'
 import { User } from '../db/models'
-import { IUser, IUserModel, IUserSchema } from '../utils/types/user/user.types'
+import {
+  IUser,
+  IUserModel,
+  IUserSchema,
+  TDeleteResponse
+} from '../utils/types/user/user.types'
 import bcrypt from 'bcrypt'
 
 export default class UserModel implements IUserModel {
@@ -22,11 +27,9 @@ export default class UserModel implements IUserModel {
     }
   }
 
-  async deleteUser(id: Schema.Types.UUID): Promise<{ success: boolean }> {
+  async deleteUser(id: Schema.Types.UUID): Promise<TDeleteResponse> {
     try {
-      const findUser = await this.getUser(id)
-      await findUser.deleteOne()
-      return { success: true }
+      return await this.Model.deleteOne({ _id: id })
     } catch (error: any) {
       throw new Error(error)
     }
@@ -39,7 +42,7 @@ export default class UserModel implements IUserModel {
   ): Promise<IUser> {
     const findUser = await this.Model.findById(id)
     if (!findUser) throw new Error('user not found')
-    if (!findUser?.comparePassword!(actualPassword))
+    if (!findUser.comparePassword!(actualPassword))
       throw new Error('password doesnt match')
     const hashNewPass = bcrypt.hashSync(newPassword, bcrypt.genSaltSync(10))
     const updateUser = await this.Model.findOneAndUpdate(
@@ -51,7 +54,7 @@ export default class UserModel implements IUserModel {
   }
 
   async recoveryPassword(
-    id: Schema.Types.UUID,
+    id: Schema.Types.ObjectId,
     newPassword: string
   ): Promise<void> {
     const user: HydratedDocument<IUserSchema> | null =
