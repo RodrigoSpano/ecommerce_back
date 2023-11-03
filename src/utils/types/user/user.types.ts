@@ -10,12 +10,14 @@ export interface IUser {
 
 export interface IUserSchema extends IUser {
   comparePassword?(password: string): boolean
+  createToken?(): string
 }
 
 export type TDeleteResponse = { acknowledged: boolean; deletedCount: number }
 
 export interface IUserModel {
   getUser(id: ObjectId): Promise<IUser>
+  getUserByEmail(email: string): Promise<IUser>
   createUser(data: Omit<IUser, 'id'>): Promise<IUser>
   deleteUser(id: ObjectId): Promise<TDeleteResponse>
   changePassword(

@@ -11,13 +11,21 @@ import bcrypt from 'bcrypt'
 export default class UserModel implements IUserModel {
   private Model = User
 
-  async getUser(id: Schema.Types.UUID): Promise<HydratedDocument<IUser>> {
+  async getUser(id: Schema.Types.ObjectId): Promise<HydratedDocument<IUser>> {
     const user: HydratedDocument<IUser> | null = await this.Model.findById(id)
     if (!user) throw new Error('user not found')
     return user
   }
 
-  async createUser(data: Omit<IUser, 'id'>): Promise<IUser> {
+  async getUserByEmail(email: string): Promise<HydratedDocument<IUser>> {
+    const user: HydratedDocument<IUser> | null = await this.Model.findOne({
+      email
+    })
+    if (!user) throw new Error('user not found')
+    return user
+  }
+
+  async createUser(data: Omit<IUser, '_id'>): Promise<IUser> {
     try {
       const user: HydratedDocument<IUser> = new this.Model(data)
       await user.save()
@@ -27,7 +35,7 @@ export default class UserModel implements IUserModel {
     }
   }
 
-  async deleteUser(id: Schema.Types.UUID): Promise<TDeleteResponse> {
+  async deleteUser(id: Schema.Types.ObjectId): Promise<TDeleteResponse> {
     try {
       return await this.Model.deleteOne({ _id: id })
     } catch (error: any) {
@@ -36,7 +44,7 @@ export default class UserModel implements IUserModel {
   }
 
   async changePassword(
-    id: Schema.Types.UUID,
+    id: Schema.Types.ObjectId,
     actualPassword: string,
     newPassword: string
   ): Promise<IUser> {
