@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import { IUserSchema } from '../../utils/types/user/user.types'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 const UserSchema = new mongoose.Schema<IUserSchema>({
   fullname: {
@@ -25,6 +26,13 @@ UserSchema.pre('save', function (next) {
 
 UserSchema.methods.comparePassword = function (password: string) {
   return bcrypt.compareSync(password, this.password)
+}
+
+UserSchema.methods.createToken = function () {
+  return jwt.sign(
+    { fullname: this.fullname, email: this.email },
+    `${process.env.JWT_SECRET}`
+  )
 }
 
 export default mongoose.model<IUserSchema>('user', UserSchema)
