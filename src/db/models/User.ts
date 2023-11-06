@@ -30,7 +30,7 @@ UserSchema.methods.comparePassword = function (password: string) {
 
 UserSchema.methods.createToken = function () {
   return jwt.sign(
-    { fullname: this.fullname, email: this.email },
+    { fullname: this.fullname, email: this.email, id: this._id },
     `${process.env.JWT_SECRET}`
   )
 }
